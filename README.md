@@ -10,4 +10,6 @@ Run in Elm-Reactor.
 
 * `w`/`s` to move Luna
 * `up`/`down` to move Celestia
-* reload to start a new game when you lose the ball
+* new ball immediately appears when you lose it
+
+There are no scores.
