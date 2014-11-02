@@ -1,5 +1,4 @@
 import Keyboard
-import Debug
 
 type Ball = { pos: (Float,Float), direction: Float }
 
@@ -79,5 +78,3 @@ ballState = foldp updateBall {pos=(0,0), direction=0.4} ponyPos
 ballPos = .pos <~ ballState
 
 main = scene <~ lunaPos ~ celestiaPos ~ ballPos
-
-watchBall = Debug.watch "ball" <~ ballState
