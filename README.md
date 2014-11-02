@@ -6,7 +6,7 @@ Known to contain bugs.
 
 ## Instructions
 
-Run in Elm-Reactor or from (this page)[http://jastice.github.io/my-little-pong/].
+Run in Elm-Reactor or from [the project page](http://jastice.github.io/my-little-pong/).
 
 * `w`/`s` to move Luna
 * `up`/`down` to move Celestia
