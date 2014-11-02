@@ -14,8 +14,8 @@ ball pos = circle ballsize |> gradient (radial (10,10) 0 (0,20) 50 [(0,red),(0.8
 
 scene lunaY celestiaY ballXY = collage dim.x dim.y [luna lunaY, celestia celestiaY, ball ballXY]
 
-updatePos: {x:Int,y:Int} -> Float -> Float
-updatePos {x,y} pos = pos + (toFloat y) * 8
+updatePos: Int -> Float -> Float
+updatePos y pos = pos + (toFloat y) * 8
 
 plus (x0,y0) (x1,y1) = (x0+x1,y0+y1)
 times (x,y) s = (x*s, y*s)
@@ -56,7 +56,7 @@ updateBall ponies ball =
 
 -- signals
 
-ponyMove inputs = sampleOn (fps 60) inputs
+ponyMove inputs = .y <~ sampleOn (fps 60) inputs
 
 position = foldp updatePos 0
 lunaPos = position (ponyMove Keyboard.wasd)
