@@ -1,12 +1,21 @@
 import Keyboard
 import Debug
 
-dim: {x:Int, y:Int}
+type Vec2 = (Float,Float)
+type Ball = { pos: Vec2, direction: Float }
+
 dim = { x=1000, y=800 }
 
-luna y = fittedImage 100 100 "img/luna_400.png" |> toForm |> move ( -((toFloat dim.x)/2) + 50, y)
-celestia y = fittedImage 100 100 "img/celestia_400.png" |> toForm |> move ( ((toFloat dim.x)/2) - 50, y)
-ball pos = circle 30 |> gradient (radial (10,10) 0 (0,20) 50 [(0,red),(0.8,blue)]) |> move pos
+bounds = {
+  xh = (toFloat dim.x) / 2,
+  yh = (toFloat dim.y) / 2
+  }
+
+ballsize = 30
+
+luna y = fittedImage 100 100 "img/luna_400.png" |> toForm |> move ( -bounds.xh + 50, y)
+celestia y = fittedImage 100 100 "img/celestia_400.png" |> toForm |> move ( bounds.xh - 50, y)
+ball pos = circle ballsize |> gradient (radial (10,10) 0 (0,20) 50 [(0,red),(0.8,blue)]) |> move pos
 
 scene lunaY celestiaY ballXY = collage dim.x dim.y [luna lunaY, celestia celestiaY, ball ballXY]
 
@@ -27,26 +36,47 @@ updatePos mv pos = case mv of
 plus (x0,y0) (x1,y1) = (x0+x1,y0+y1)
 times (x,y) s = (x*s, y*s)
 
-updateBall: Float -> (Float,Float) -> (Float, Float)
-updateBall direction pos = times (cos direction, sin direction) 5 |> plus pos
+checkBounds: Ball -> Ball
+checkBounds ball = 
+  if (snd ball.pos + ballsize/2 >= bounds.yh) || (snd ball.pos - ballsize/2 <= -bounds.yh)
+  then { ball | direction <- -ball.direction}
+  else ball
+
+checkPonies: (Float,Float) -> Ball -> Ball
+checkPonies (posLuna,posCelestia) ball = 
+  let lunaBound = -bounds.xh + 100
+      lunaTop = posLuna + 50
+      lunaBottom = posLuna - 50
+      celestiaBound = bounds.xh - 100
+      celestiaTop = posCelestia + 50
+      celestiaBottom = posCelestia - 50
+      (ballX, ballY) = ball.pos
+      isReflected yTop yBottom = ballY <= yTop && ballY >= yBottom
+  in if ballX <= lunaBound && isReflected lunaTop lunaBottom ||
+        ballX >= celestiaBound && isReflected celestiaTop celestiaBottom
+     then {ball | direction <- pi-ball.direction}
+     else ball
+
+updateBall: (Float,Float) -> Ball -> Ball
+updateBall ponies ball = 
+  let ball1 = checkBounds ball
+      {pos,direction} = checkPonies ponies ball1
+      pos1 = times (cos direction, sin direction) 5 |> plus pos
+  in { pos = pos1, direction = direction }
 
 
 -- signals
 
 ponyMove inputs = movement <~ sampleOn (fps 60) inputs
 
-lunaMove = ponyMove Keyboard.wasd
-celestiaMove = ponyMove Keyboard.arrows
-
 position = foldp updatePos 0
-lunaPos = position lunaMove
-celestiaPos = position celestiaMove
+lunaPos = position (ponyMove Keyboard.wasd)
+celestiaPos = position (ponyMove Keyboard.arrows)
 
-ballPos = foldp updateBall (0,0) (constant 0.3 |> sampleOn (fps 60) )
-
+ponyPos = (,) <~ lunaPos ~ celestiaPos
+ballState = foldp updateBall {pos=(0,0), direction=0.4} ponyPos
+ballPos = .pos <~ ballState
 
 main = scene <~ lunaPos ~ celestiaPos ~ ballPos
 
---watchLuna = Debug.watch "luna" <~ lunaPos
---watchWasd = Debug.watch "wasd" <~ Keyboard.wasd
-watchBall = Debug.watch "ball" <~ ballPos
+watchBall = Debug.watch "ball" <~ ballState
