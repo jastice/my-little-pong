@@ -2,7 +2,7 @@
 
 A barebones Pong with ponies. Made in Elm!
 
-Contains known bugs.
+Known to contain bugs.
 
 ## Instructions
 
