@@ -1,6 +1,11 @@
 import Keyboard
+import Graphics.Element (image)
+import Graphics.Collage (toForm,move,circle,gradient,collage)
+import Color (radial,red,blue)
+import Signal ((<~),(~),sampleOn,foldp)
+import Time (fps)
 
-type Ball = { pos: (Float,Float), direction: Float }
+type alias Ball = { pos: (Float,Float), direction: Float }
 
 dim = { x=1000, y=800 }
 
