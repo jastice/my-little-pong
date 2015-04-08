@@ -1,6 +1,6 @@
 # My Little Pong
 
-A barebones Pong with ponies. Made in Elm!
+A barebones Pong with ponies. Made in [Elm](http://en.wikipedia.org/wiki/Elm_%28programming_language%29)!
 
 Known to contain bugs.
 
