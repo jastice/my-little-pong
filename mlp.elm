@@ -1,9 +1,9 @@
 import Keyboard
-import Graphics.Element (image)
-import Graphics.Collage (toForm,move,circle,gradient,collage)
-import Color (radial,red,blue)
-import Signal ((<~),(~),sampleOn,foldp)
-import Time (fps)
+import Graphics.Element exposing (image)
+import Graphics.Collage exposing (toForm,move,circle,gradient,collage)
+import Color exposing (radial,red,blue)
+import Signal exposing ((<~),(~),sampleOn,foldp)
+import Time exposing (fps)
 
 type alias Ball = { pos: (Float,Float), direction: Float }
 
