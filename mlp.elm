@@ -5,42 +5,49 @@ import Color exposing (radial,red,blue)
 import Signal exposing ((<~),(~),sampleOn,foldp)
 import Time exposing (fps)
 
-type alias Ball = { pos: (Float,Float), direction: Float }
-
+-- game settings
 dim = { x=1000, y=800 }
+ponySize = 100
+ballSize = 30
 
 ballSpeed = 3
+gameFps = 60
 
+-- derived settings
+type alias Ball = { pos: (Float,Float), direction: Float }
+
+ponySizeHalf = ponySize / 2
 bounds = { xh = (toFloat dim.x) / 2, yh = (toFloat dim.y) / 2 }
-lunaBound = -bounds.xh + 100
+lunaBound = -bounds.xh + ponySize
 lunaBoundLimit = lunaBound - 5
-celestiaBound = bounds.xh - 100
+celestiaBound = bounds.xh - ponySize
 celestiaBoundLimit = celestiaBound + 5
 
-ballsize = 30
-
-luna y = image 100 100 "img/luna_400.png" |> toForm |> move ( -bounds.xh + 50, y)
-celestia y = image 100 100 "img/celestia_400.png" |> toForm |> move ( bounds.xh - 50, y)
-ball pos = circle ballsize |> gradient (radial (10,10) 0 (0,20) 50 [(0,red),(0.8,blue)]) |> move pos
+luna y = image ponySize ponySize "img/luna_400.png" |> toForm |> move ( -bounds.xh + 50, y)
+celestia y = image ponySize ponySize "img/celestia_400.png" |> toForm |> move ( bounds.xh - 50, y)
+ball pos = circle ballSize |> gradient (radial (10,10) 0 (0,20) 50 [(0,red),(0.8,blue)]) |> move pos
 
 scene lunaY celestiaY ballXY = collage dim.x dim.y [luna lunaY, celestia celestiaY, ball ballXY]
 
+-- game logic
+stopAt = ponySizeHalf
+
 updatePos: Int -> Float -> Float
-updatePos y pos = pos + (toFloat y) * 8
+updatePos y pos = clamp (-bounds.yh + stopAt) (bounds.yh - stopAt) <| pos + (toFloat y) * 8
 
 plus (x0,y0) (x1,y1) = (x0+x1,y0+y1)
 times (x,y) s = (x*s, y*s)
 
 checkBounds: Ball -> Ball
 checkBounds ball = 
-  if (snd ball.pos + ballsize/2 >= bounds.yh) || (snd ball.pos - ballsize/2 <= -bounds.yh)
+  if (snd ball.pos + ballSize/2 >= bounds.yh) || (snd ball.pos - ballSize/2 <= -bounds.yh)
   then { ball | direction <- -ball.direction}
   else ball
 
 checkPonies: (Float,Float) -> Ball -> Ball
 checkPonies (posLuna,posCelestia) ball = 
-  let lunaTopBottom = (posLuna + 50, posLuna - 50)
-      celestiaTopBottom = (posCelestia + 50, posCelestia - 50)
+  let lunaTopBottom = (posLuna + ponySizeHalf, posLuna - ponySizeHalf)
+      celestiaTopBottom = (posCelestia + ponySizeHalf, posCelestia - ponySizeHalf)
       (ballX, ballY) = ball.pos
       isReflected (yTop,yBottom) = ballY <= yTop && ballY >= yBottom
   in if ballX <= lunaBound && ballX > lunaBoundLimit && isReflected lunaTopBottom ||
@@ -65,7 +72,7 @@ updateBall ponies ball =
 
 -- signals
 
-ponyMove inputs = .y <~ sampleOn (fps 60) inputs
+ponyMove inputs = .y <~ sampleOn (fps gameFps) inputs
 
 position = foldp updatePos 0
 lunaPos = position (ponyMove Keyboard.wasd)
