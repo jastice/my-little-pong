@@ -10,7 +10,7 @@ dim = { x=1000, y=800 }
 ponySize = 100
 ballSize = 30
 
-ballSpeed = 3
+ballSpeed = 5
 gameFps = 60
 
 -- derived settings
@@ -69,6 +69,7 @@ updateBall ponies ball =
       {pos,direction} = checkReset ball2
       pos1 = times (cos direction, sin direction) ballSpeed |> plus pos
   in { pos = pos1, direction = direction }
+
 
 -- signals
 
