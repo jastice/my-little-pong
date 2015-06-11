@@ -9,7 +9,13 @@ type alias Ball = { pos: (Float,Float), direction: Float }
 
 dim = { x=1000, y=800 }
 
+ballSpeed = 3
+
 bounds = { xh = (toFloat dim.x) / 2, yh = (toFloat dim.y) / 2 }
+lunaBound = -bounds.xh + 100
+lunaBoundLimit = lunaBound - 5
+celestiaBound = bounds.xh - 100
+celestiaBoundLimit = celestiaBound + 5
 
 ballsize = 30
 
@@ -33,14 +39,12 @@ checkBounds ball =
 
 checkPonies: (Float,Float) -> Ball -> Ball
 checkPonies (posLuna,posCelestia) ball = 
-  let lunaBound = -bounds.xh + 100
-      lunaTopBottom = (posLuna + 50, posLuna - 50)
-      celestiaBound = bounds.xh - 100
+  let lunaTopBottom = (posLuna + 50, posLuna - 50)
       celestiaTopBottom = (posCelestia + 50, posCelestia - 50)
       (ballX, ballY) = ball.pos
       isReflected (yTop,yBottom) = ballY <= yTop && ballY >= yBottom
-  in if ballX <= lunaBound && isReflected lunaTopBottom ||
-        ballX >= celestiaBound && isReflected celestiaTopBottom
+  in if ballX <= lunaBound && ballX > lunaBoundLimit && isReflected lunaTopBottom ||
+        ballX >= celestiaBound && ballX < celestiaBoundLimit && isReflected celestiaTopBottom
      then {ball | direction <- pi-ball.direction}
      else ball
 
@@ -56,7 +60,7 @@ updateBall ponies ball =
   let ball1 = checkBounds ball
       ball2 = checkPonies ponies ball1
       {pos,direction} = checkReset ball2
-      pos1 = times (cos direction, sin direction) 5 |> plus pos
+      pos1 = times (cos direction, sin direction) ballSpeed |> plus pos
   in { pos = pos1, direction = direction }
 
 -- signals
