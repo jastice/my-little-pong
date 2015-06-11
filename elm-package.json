@@ -2,7 +2,7 @@
     "elm-version": "0.15.0 <= v < 0.16.0",
     "version": "1.0.0",
     "summary": "My Little Pong",
-    "repository": "https://github.com/USER/PROJECT.git",
+    "repository": "https://github.com/jastice/my-little-pong.git",
     "license": "BSD3",
     "source-directories": [
         "."
